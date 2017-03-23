@@ -1,0 +1,22 @@
+{
+  "name": "myx",
+  "version": "1.0.0",
+  "description": "\"# myx\"",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liamwye/myx.git"
+  },
+  "author": "Liam Wye",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liamwye/myx/issues"
+  },
+  "homepage": "https://github.com/liamwye/myx#readme",
+  "dependencies": {
+    "discord.js": "^11.0.0"
+  }
+}

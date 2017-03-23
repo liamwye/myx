@@ -54,6 +54,11 @@ bot.on('ready', function() {
         bot.user.setGame(Config.game);
         console.log(" .. Bot set game to " + Config.game);
     }
+
+    // Resolve the default channel id
+    if (!Config.defaultChannel) {
+        Config.defaultChannel = 'general';
+    }
 });
 
 bot.on('message', function(message) {
@@ -64,8 +69,12 @@ bot.on('messageUpdate', function(oldMessage, newMessage) {
     processCommand(message, true);
 });
 
-bot.on('guildMemberAdd' function(member) {
-    console.log(member.displayName);
+bot.on('guildMemberAdd', function(member) {
+    // get the channel by its ID
+    var channel = client.channels.get(Config.defaultChannel);
+
+    // send the message, mentioning the member
+    channel.sendMessage(`Welcome to the server, ${member}!`);
 });
 
 bot.on('disconnected', function() {
@@ -78,4 +87,5 @@ if (Config.token) {
     bot.login(Config.token);
 } else {
     console.log(' .. ERROR: Unable to login, missing token');
+    process.exit(1);
 }

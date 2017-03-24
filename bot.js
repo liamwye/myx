@@ -12,16 +12,76 @@ if (!Config.prefix) {
     Config.prefix = "!";
 }
 
+// Ensure we have a default channel
+if (!Config.defaultChannel) {
+    Config.defaultChannel = 'general';
+}
+
 // Load commands
-var Commands = {
-    "test": {
-        "usage": "!test",
-        "description": "Test command...",
-        "process": function(message) {
-            message.channel.send("hej");
-        }
+var Commands = require('./commands.js');
+
+// Initialise bot
+const bot = new Discord.Client();
+
+bot.on('ready', function() {
+    console.log(' .. Bot started')
+    if (bot.user.username) {
+        console.log(' .. Bot has logged in as ' + bot.user.username);
     }
-};
+
+    if (Config.game) {
+        bot.user.setGame(Config.game);
+        console.log(" .. Bot set game to " + Config.game);
+    }
+});
+
+bot.on('message', function(message) {
+    processCommand(message, false);
+});
+
+bot.on('guildMemberAdd', function(member) {
+    sendChannelMessage(`Welcome to the server, ${member}!`, Config.defaultChannel);
+});
+
+bot.on('voiceStateUpdate', function(oldMember, newMember) {
+    var message = `${oldMember} has `;
+
+    if (oldMember.voiceChannel === undefined) {
+        message += `joined **${newMember.voiceChannel}** (connected)`;
+    } else if(newMember.voiceChannel === undefined) {
+        message += `left **${oldMember.voiceChannel}** (disconnected)`;
+    } else {
+        message += `moved from **${oldMember.voiceChannel}** to **${newMember.voiceChannel}**`;
+    }
+
+    sendChannelMessage(message, Config.voiceLogChannel);
+});
+
+bot.on('disconnected', function() {
+    console.log(' .. Bot disconnected');
+    process.exit(1);
+});
+
+// Check for token and login where appropriate
+if (Config.token) {
+    bot.login(Config.token);
+} else {
+    console.log(' .. ERROR: Unable to login, missing token');
+    process.exit(1);
+}
+
+
+
+// Attempt to send a channel message
+function sendChannelMessage(message, channel) {
+    var channel = bot.channels.find('name', channel);
+
+    try {
+        channel.sendMessage(message);
+    } catch(e) {
+        console.error(e);
+    }
+}
 
 // Check to see if a message contains a command for the bot
 function processCommand(message, isUpdate) {
@@ -39,53 +99,4 @@ function processCommand(message, isUpdate) {
     }
 
     return false;
-}
-
-// Initialise bot
-const bot = new Discord.Client();
-
-bot.on('ready', function() {
-    console.log(' .. Bot started')
-    if (bot.user.username) {
-        console.log(' .. Bot has logged in as ' + bot.user.username);
-    }
-
-    if (Config.game) {
-        bot.user.setGame(Config.game);
-        console.log(" .. Bot set game to " + Config.game);
-    }
-
-    // Resolve the default channel id
-    if (!Config.defaultChannel) {
-        Config.defaultChannel = 'general';
-    }
-});
-
-bot.on('message', function(message) {
-    processCommand(message, false);
-});
-
-bot.on('messageUpdate', function(oldMessage, newMessage) {
-    processCommand(message, true);
-});
-
-bot.on('guildMemberAdd', function(member) {
-    // get the channel by its ID
-    var channel = client.channels.get(Config.defaultChannel);
-
-    // send the message, mentioning the member
-    channel.sendMessage(`Welcome to the server, ${member}!`);
-});
-
-bot.on('disconnected', function() {
-    console.log(' .. Bot disconnected');
-    process.exit(1);
-});
-
-// Check for token and login where appropriate
-if (Config.token) {
-    bot.login(Config.token);
-} else {
-    console.log(' .. ERROR: Unable to login, missing token');
-    process.exit(1);
 }

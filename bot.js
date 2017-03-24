@@ -2,7 +2,45 @@
 
 const Discord = require('discord.js');
 
-console.log("Forking Myx\n * Node " + process.version + "\n * Discord.js v" + Discord.version);
+// Load web interface
+const express = require('express');
+const WebSocketServer = require('ws').Server;
+const path = require('path');
+
+// Initialise the ws
+const ws = require('ws');
+const wss = new WebSocketServer({ port: 2222});
+
+wss.on('connection', function(ws) {
+    console.log('Client connected to web interface');
+    ws.on('close', function() {
+        console.log('Client disconnected from web interface');
+    })
+});
+
+function sendClientMessage(message) {
+    wss.clients.forEach(function(client) {
+        client.send(message);
+    });
+}
+
+// Initialise the server
+var server = express();
+
+// Define settings
+const PORT = process.env.PORT || 3000;
+const INDEX = path.join(__dirname, '/www/index.html');
+
+server.use(function(request, response) {
+    response.sendFile(INDEX);
+});
+
+server.listen(PORT, function () {
+  console.log(`Web interface listening on port ${PORT}`);
+})
+
+
+log("Forking Myx\n * Node " + process.version + "\n * Discord.js v" + Discord.version);
 
 
 // Load configuration
@@ -23,14 +61,14 @@ var Commands = require('./commands.js');
 const bot = new Discord.Client();
 
 bot.on('ready', function() {
-    console.log(' .. Bot started')
+    log(' .. Bot started')
     if (bot.user.username) {
-        console.log(' .. Bot has logged in as ' + bot.user.username);
+        log(' .. Bot has logged in as ' + bot.user.username);
     }
 
     if (Config.game) {
         bot.user.setGame(Config.game);
-        console.log(" .. Bot set game to " + Config.game);
+        log(" .. Bot set game to " + Config.game);
     }
 
     // Load plugins?
@@ -60,16 +98,19 @@ bot.on('voiceStateUpdate', function(oldMember, newMember) {
     }
 });
 
-bot.on('disconnected', function() {
-    console.log(' .. Bot disconnected');
-    process.exit(1);
+bot.on('disconnect', function() {
+    log(' .. Bot disconnected');
+});
+
+bot.on('debug', function(info) {
+    log('  DEBUG: ' + info);
 });
 
 // Check for token and login where appropriate
 if (Config.token) {
     bot.login(Config.token);
 } else {
-    console.log(' .. ERROR: Unable to login, missing token');
+    log(' .. ERROR: Unable to login, missing token');
     process.exit(1);
 }
 
@@ -82,7 +123,7 @@ function sendChannelMessage(message, channel) {
     try {
         channel.sendMessage(message);
     } catch(e) {
-        console.error(e);
+        log(e);
     }
 }
 
@@ -94,12 +135,17 @@ function processCommand(message, isUpdate) {
 
         try {
             Commands[commandText].process(message, isUpdate);
-            console.log(" .. COMMAND: Bot processed " + Config.prefix + commandText)
+            log(" .. COMMAND: Bot processed " + Config.prefix + commandText)
         } catch(e) {
-            console.log(" .. ERROR: Bot command failed; " + Config.prefix + commandText);
-            console.error(e);
+            log(" .. ERROR: Bot command failed; " + Config.prefix + commandText);
+            log(e);
         }
     }
 
     return false;
+}
+
+function log(message) {
+    console.log(message);
+    sendClientMessage(message);
 }

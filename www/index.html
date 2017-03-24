@@ -1,0 +1,22 @@
+<html>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <body>
+        <div class="container" style="margin-top: 20px;">
+            <div class="row">
+                <ul class="list-group" id="log">
+                    <li class="list-group-item">Client connected to log...</li>
+                </ul>
+            </div>
+        </div>
+    <script>
+      var ws = new WebSocket('ws://localhost:2222');
+      var el = document.getElementById('log');
+      ws.onmessage = function (event) {
+        var li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.innerHTML = event.data;
+        el.appendChild(li);
+      };
+    </script>
+  </body>
+</html>

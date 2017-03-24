@@ -7,12 +7,11 @@ console.log("Forking Myx\n * Node " + process.version + "\n * Discord.js v" + Di
 
 // Load configuration
 var Config = require('./config.json');
-// Ensure we have a config prefix
+
+// Set defaults
 if (!Config.prefix) {
     Config.prefix = "!";
 }
-
-// Ensure we have a default channel
 if (!Config.defaultChannel) {
     Config.defaultChannel = 'general';
 }
@@ -33,6 +32,8 @@ bot.on('ready', function() {
         bot.user.setGame(Config.game);
         console.log(" .. Bot set game to " + Config.game);
     }
+
+    // Load plugins?
 });
 
 bot.on('message', function(message) {
@@ -44,17 +45,19 @@ bot.on('guildMemberAdd', function(member) {
 });
 
 bot.on('voiceStateUpdate', function(oldMember, newMember) {
-    var message = `${oldMember} has `;
+    if (Config.voiceLogChannel) {
+        var message = `${oldMember} has `;
 
-    if (oldMember.voiceChannel === undefined) {
-        message += `joined **${newMember.voiceChannel}** (connected)`;
-    } else if(newMember.voiceChannel === undefined) {
-        message += `left **${oldMember.voiceChannel}** (disconnected)`;
-    } else {
-        message += `moved from **${oldMember.voiceChannel}** to **${newMember.voiceChannel}**`;
+        if (oldMember.voiceChannel === undefined) {
+            message += `joined **${newMember.voiceChannel}** (connected)`;
+        } else if(newMember.voiceChannel === undefined) {
+            message += `left **${oldMember.voiceChannel}** (disconnected)`;
+        } else {
+            message += `moved from **${oldMember.voiceChannel}** to **${newMember.voiceChannel}**`;
+        }
+
+        sendChannelMessage(message, Config.voiceLogChannel);
     }
-
-    sendChannelMessage(message, Config.voiceLogChannel);
 });
 
 bot.on('disconnected', function() {

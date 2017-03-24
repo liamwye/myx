@@ -4,6 +4,7 @@
   "description": "\"# myx\"",
   "main": "bot.js",
   "scripts": {
+    "start": "node bot.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,6 +18,11 @@
   },
   "homepage": "https://github.com/liamwye/myx#readme",
   "dependencies": {
-    "discord.js": "^11.0.0"
+    "discord.js": "^11.0.0",
+    "erlpack": "github:hammerandchisel/erlpack#master",
+    "express": "^4.15.2",
+    "node-opus": "^0.2.0",
+    "opusscript": "0.0.1",
+    "uws": "^0.12.0"
   }
 }

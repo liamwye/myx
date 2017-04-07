@@ -9,7 +9,6 @@ var Wow = function(config, bot) {
 };
 
 Wow.prototype.init = function() {
-    // Connect to blizzard API
     console.log(' + Initialising WoW plugin...');
 
     // Initialise the WoW API

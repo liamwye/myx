@@ -3,12 +3,6 @@ const path = require('path');
 const dateFormat = require('dateformat');
 const util = require('util');
 
-function sendClientMessage(message) {
-    wss.clients.forEach(function(client) {
-        client.send(message);
-    });
-}
-
 log("Forking Myx\n * Node " + process.version + "\n * Discord.js v" + Discord.version);
 
 // Load configuration
@@ -30,24 +24,28 @@ var Commands = require('./commands.js');
 var commands = new Commands(Config.prefix, bot);
 
 var plugins = {};
+
 bot.on('ready', function() {
-    log(' .. Bot started')
     if (bot.user.username) {
-        log(' .. Bot has logged in as ' + bot.user.username);
+        log('Logged in as ' + bot.user.username);
     }
 
     if (Config.game) {
         bot.user.setGame(Config.game).then(() => {
-            log(' .. Bot set game to "' + this.user.localPresence.game.name + '"');
+            log('Set game to "' + this.user.localPresence.game.name + '"');
         });
     }
 
     // Load plugins...
     // TODO: Do this dynamically - loop over dir and load each
     plugins.wow = {
-        "class": require('./plugins/wow.js')
+        "src": require('./plugins/wow.js')
     }
-    plugins.wow.object = new plugins.wow.class(Config.plugins.wow, bot);
+    plugins.wow.object = new plugins.wow.src(Config.plugins.wow, bot);
+    plugins.voiceLog = {
+        "src": require('./plugins/voiceLog.js')
+    }
+    plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot);
 
 });
 
@@ -61,22 +59,6 @@ bot.on('messageUpdate', function(oldMessage, newMessage) {
 
 bot.on('guildMemberAdd', function(member) {
     sendChannelMessage(`Welcome to the server, ${member}!`, Config.defaultChannel);
-});
-
-bot.on('voiceStateUpdate', function(oldMember, newMember) {
-    if (Config.voiceLogChannel && (newMember.voiceChannel !== oldMember.voiceChannel)) {
-        var message = `**${get24HourTime()}:** ${oldMember.displayName} `;
-
-        if (oldMember.voiceChannel === undefined) {
-            message += `joined **${newMember.voiceChannel}** (connected)`;
-        } else if(newMember.voiceChannel === undefined) {
-            message += `disconnected`;
-        } else {
-            message += `moved from **${oldMember.voiceChannel}** to **${newMember.voiceChannel}**`;
-        }
-
-        sendChannelMessage(message, Config.voiceLogChannel);
-    }
 });
 
 bot.on('disconnect', function() {
@@ -97,7 +79,7 @@ if (Config.token) {
 
 // Attempt to send a channel message
 function sendChannelMessage(message, channel) {
-    var channel = bot.channels.find('name', channel);
+    channel = bot.channels.find('name', channel);
 
     try {
         channel.sendMessage(message);
@@ -119,7 +101,6 @@ function log(message) {
     }
 
     console.log(message);
-    sendClientMessage(message);
 }
 
 process.stdin.resume(); // So the program will not close instantly

@@ -1,20 +1,19 @@
-//https://discordapp.com/oauth2/authorize?client_id=294361039880060928&scope=bot&permissions=2146958463
-
 const Discord = require('discord.js');
-
-// Load web interface
 const express = require('express');
 const WebSocketServer = require('ws').Server;
 const path = require('path');
+const dateFormat = require('dateformat');
+const util = require('util');
 
 // Initialise the ws
 const ws = require('ws');
 const wss = new WebSocketServer({ port: 2222});
 
 wss.on('connection', function(ws) {
-    console.log('Client connected to web interface');
+    log('Client connected to web interface');
+
     ws.on('close', function() {
-        console.log('Client disconnected from web interface');
+        log('Client disconnected from web interface');
     })
 });
 
@@ -36,7 +35,7 @@ server.use(function(request, response) {
 });
 
 server.listen(PORT, function () {
-  console.log(`Web interface listening on port ${PORT}`);
+  log(`Web interface listening on port ${PORT}`);
 })
 
 
@@ -54,12 +53,14 @@ if (!Config.defaultChannel) {
     Config.defaultChannel = 'general';
 }
 
-// Load commands
-var Commands = require('./commands.js');
-
 // Initialise bot
 const bot = new Discord.Client();
 
+// Load commands
+var Commands = require('./commands.js');
+var commands = new Commands(Config.prefix, bot);
+
+var plugins = {};
 bot.on('ready', function() {
     log(' .. Bot started')
     if (bot.user.username) {
@@ -67,15 +68,26 @@ bot.on('ready', function() {
     }
 
     if (Config.game) {
-        bot.user.setGame(Config.game);
-        log(" .. Bot set game to " + Config.game);
+        bot.user.setGame(Config.game).then(() => {
+            log(' .. Bot set game to "' + this.user.localPresence.game.name + '"');
+        });
     }
 
-    // Load plugins?
+    // Load plugins...
+    // TODO: Do this dynamically - loop over dir and load each
+    plugins.wow = {
+        "class": require('./plugins/wow.js')
+    }
+    plugins.wow.object = new plugins.wow.class(Config.plugins.wow, bot);
+
 });
 
 bot.on('message', function(message) {
-    processCommand(message, false);
+    commands.processCommand(message, false);
+});
+
+bot.on('messageUpdate', function(oldMessage, newMessage) {
+    commands.processCommand(newMessage, true);
 });
 
 bot.on('guildMemberAdd', function(member) {
@@ -83,13 +95,13 @@ bot.on('guildMemberAdd', function(member) {
 });
 
 bot.on('voiceStateUpdate', function(oldMember, newMember) {
-    if (Config.voiceLogChannel) {
-        var message = `${oldMember} has `;
+    if (Config.voiceLogChannel && (newMember.voiceChannel !== oldMember.voiceChannel)) {
+        var message = `**${get24HourTime()}:** ${oldMember.displayName} `;
 
         if (oldMember.voiceChannel === undefined) {
             message += `joined **${newMember.voiceChannel}** (connected)`;
         } else if(newMember.voiceChannel === undefined) {
-            message += `left **${oldMember.voiceChannel}** (disconnected)`;
+            message += `disconnected`;
         } else {
             message += `moved from **${oldMember.voiceChannel}** to **${newMember.voiceChannel}**`;
         }
@@ -103,7 +115,7 @@ bot.on('disconnect', function() {
 });
 
 bot.on('debug', function(info) {
-    log('  DEBUG: ' + info);
+    //log('  DEBUG: ' + info);
 });
 
 // Check for token and login where appropriate
@@ -113,8 +125,6 @@ if (Config.token) {
     log(' .. ERROR: Unable to login, missing token');
     process.exit(1);
 }
-
-
 
 // Attempt to send a channel message
 function sendChannelMessage(message, channel) {
@@ -127,25 +137,37 @@ function sendChannelMessage(message, channel) {
     }
 }
 
-// Check to see if a message contains a command for the bot
-function processCommand(message, isUpdate) {
-    // Check the sender and for a command prefix
-    if (message.author.id != bot.user.id && (message.content.startsWith(Config.prefix))) {
-        var commandText = message.content.split(" ")[0].substring(Config.prefix.length);
-
-        try {
-            Commands[commandText].process(message, isUpdate);
-            log(" .. COMMAND: Bot processed " + Config.prefix + commandText)
-        } catch(e) {
-            log(" .. ERROR: Bot command failed; " + Config.prefix + commandText);
-            log(e);
-        }
-    }
-
-    return false;
+function get24HourTime() {
+    return dateFormat('HH:MM:ss');
 }
 
 function log(message) {
+    if (typeof message === 'object') {
+        message = util.inspect(message, { showHidden: true, depth: null });
+    } else {
+        // Add timestamp
+        message = get24HourTime() + ': ' + message;
+    }
+
     console.log(message);
     sendClientMessage(message);
 }
+
+process.stdin.resume(); // So the program will not close instantly
+
+function exitHandler() {
+    if (bot.status !== 3) { // 0 online, 1 idle, 2 dnd, 3 offline
+        log('Destroying bot...');
+        bot.destroy();
+    }
+
+    process.exit()
+}
+process.on('SIGINT', exitHandler);
+process.on('exit', exitHandler);
+
+process.on('uncaughtException', function(e) {
+    console.log('Uncaught Exception:');
+    console.log(e.stack);
+    process.exit(99);
+});

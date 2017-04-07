@@ -46,8 +46,9 @@ Commands.prototype.commands = {
                     var pin = pins.random();
 
                     var response = `${pin.author}: ${pin.content}`;
+
+                    // Check for an attachment
                     if(pin.attachments !== 'undefined') {
-                        // sendFile on
                         var file = pin.attachments.first();
 
                         return message.channel.sendFile(file.url, file.filename, response);
@@ -80,7 +81,7 @@ Commands.prototype.commands = {
 
             var uptimeMessage = uptime.getSeconds() + ' seconds';
             if (uptime.getMinutes() > 0) {
-                uptimeMessage = uptime.getMinutes() + ' minutes, ' + uptimeMessage;
+                uptimeMessage = uptime.getMinutes() + ' minutes and ' + uptimeMessage;
             }
             if (uptime.getHours() > 0) {
                 uptimeMessage += uptime.getHours() + ' hours, ' + uptimeMessage;

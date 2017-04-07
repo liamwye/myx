@@ -1,21 +1,7 @@
 const Discord = require('discord.js');
-const express = require('express');
-const WebSocketServer = require('ws').Server;
 const path = require('path');
 const dateFormat = require('dateformat');
 const util = require('util');
-
-// Initialise the ws
-const ws = require('ws');
-const wss = new WebSocketServer({ port: 2222});
-
-wss.on('connection', function(ws) {
-    log('Client connected to web interface');
-
-    ws.on('close', function() {
-        log('Client disconnected from web interface');
-    })
-});
 
 function sendClientMessage(message) {
     wss.clients.forEach(function(client) {
@@ -23,24 +9,7 @@ function sendClientMessage(message) {
     });
 }
 
-// Initialise the server
-var server = express();
-
-// Define settings
-const PORT = process.env.PORT || 3000;
-const INDEX = path.join(__dirname, '/www/index.html');
-
-server.use(function(request, response) {
-    response.sendFile(INDEX);
-});
-
-server.listen(PORT, function () {
-  log(`Web interface listening on port ${PORT}`);
-})
-
-
 log("Forking Myx\n * Node " + process.version + "\n * Discord.js v" + Discord.version);
-
 
 // Load configuration
 var Config = require('./config.json');

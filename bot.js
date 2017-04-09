@@ -35,19 +35,19 @@ bot.on('ready', function() {
             log('Set game to "' + this.user.localPresence.game.name + '"');
         });
     }
-
-    // Load plugins...
-    // TODO: Do this dynamically - loop over dir and load each
-    plugins.wow = {
-        "src": require('./plugins/wow.js')
-    }
-    plugins.wow.object = new plugins.wow.src(Config.plugins.wow, bot);
-    plugins.voiceLog = {
-        "src": require('./plugins/voiceLog.js')
-    }
-    plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot);
-
 });
+
+// Load plugins...
+// TODO: Do this dynamically - loop over dir and load each
+plugins.wow = {
+    "src": require('./plugins/wow')
+}
+plugins.wow.object = new plugins.wow.src(Config.plugins.wow, bot);
+plugins.voiceLog = {
+    "src": require('./plugins/voiceLog')
+}
+plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot);
+
 
 bot.on('message', function(message) {
     commands.processCommand(message, false);

@@ -5,7 +5,9 @@ var VoiceLog = function(config, bot) {
     this.bot = bot;
 
     // Cache the log channel
-    this.channel = this.bot.channels.find('name', this.config.channel);
+    this.bot.on('ready', () => {
+        this.channel = this.bot.channels.find('name', this.config.channel);
+    })
 
     this.init();
 };
@@ -16,13 +18,15 @@ VoiceLog.prototype.init = function() {
     var self = this;
 
     // Listen to voice state update event and log and channel moves/joins/connects
-    this.bot.on('voiceStateUpdate', function(oldMember, newMember) {
+    this.bot.on('voiceStateUpdate', (oldMember, newMember) => {
         // Check for channel differences
         if (newMember.voiceChannel !== oldMember.voiceChannel) {
             var message = `**${dateFormat('HH:MM:ss')}:** ${oldMember.displayName} `;
             if (oldMember.voiceChannel === undefined) {
                 message += `joined **${newMember.voiceChannel}** (connected)`;
-            } else if(newMember.voiceChannel === undefined) {
+            } else if (newMember.voiceChannelID === newMember.guild.afkChannelID) {
+                message += `is AFK`;
+            } else if (newMember.voiceChannel === undefined) {
                 message += `disconnected`;
             } else {
                 message += `moved from **${oldMember.voiceChannel}** to **${newMember.voiceChannel}**`;

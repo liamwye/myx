@@ -19,7 +19,7 @@ VoiceLog.prototype.init = function() {
     this.bot.on('voiceStateUpdate', function(oldMember, newMember) {
         // Check for channel differences
         if (newMember.voiceChannel !== oldMember.voiceChannel) {
-            var message = `**${dateFormat('HH:MM:ss')}:** ${oldMember.displayName} `;
+            var message = `**${dateFormat('HH:MM:ss')}:** \`${oldMember.displayName}\` `;
             if (oldMember.voiceChannel === undefined) {
                 message += `joined **${newMember.voiceChannel}** (connected)`;
             } else if(newMember.voiceChannel === undefined) {
@@ -39,3 +39,5 @@ VoiceLog.prototype.init = function() {
 }
 
 module.exports = VoiceLog;
+
+Fri 14th 3pm - GA GOS4

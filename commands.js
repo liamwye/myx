@@ -84,7 +84,7 @@ Commands.prototype.commands = {
                 uptimeMessage = uptime.getMinutes() + ' minutes and ' + uptimeMessage;
             }
             if (uptime.getHours() > 0) {
-                uptimeMessage += uptime.getHours() + ' hours, ' + uptimeMessage;
+                uptimeMessage = uptime.getHours() + ' hours, ' + uptimeMessage;
             }
 
             return message.channel.send(uptimeMessage)

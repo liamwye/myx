@@ -39,5 +39,3 @@ VoiceLog.prototype.init = function() {
 }
 
 module.exports = VoiceLog;
-
-Fri 14th 3pm - GA GOS4

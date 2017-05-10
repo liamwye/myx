@@ -2,11 +2,17 @@ const Discord = require('discord.js');
 const path = require('path');
 const dateFormat = require('dateformat');
 const util = require('util');
+const low = require('lowdb')
 
 log("Forking Myx\n * Node " + process.version + "\n * Discord.js v" + Discord.version);
 
 // Load configuration
 var Config = require('./config.json');
+
+// Load persistent file storage
+const db = low('db.json', {
+    storage: require('lowdb/lib/storages/file-async')
+})
 
 // Set defaults
 if (!Config.prefix) {
@@ -38,7 +44,7 @@ bot.on('ready', function() {
 });
 
 // Load plugins...
-// TODO: Do this dynamically - loop over dir and load each
+// TODO: Do this dynamically... loop over each dir and load the requirements
 plugins.wow = {
     "src": require('./plugins/wow')
 }
@@ -50,7 +56,7 @@ plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot)
 plugins.rss = {
     "src": require('./plugins/rss')
 }
-plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot);
+plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot, db);
 
 
 bot.on('message', function(message) {

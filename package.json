@@ -23,6 +23,7 @@
     "discord.js": "^11.0.0",
     "erlpack": "github:hammerandchisel/erlpack#master",
     "express": "^4.15.2",
+    "lowdb": "^0.16.2",
     "node-opus": "^0.2.0",
     "opusscript": "0.0.1",
     "rss-parser": "^2.7.0",

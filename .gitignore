@@ -59,3 +59,6 @@ typings/
 
 # Config data
 config.json
+
+# low-db data
+db.json

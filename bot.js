@@ -47,6 +47,10 @@ plugins.voiceLog = {
     "src": require('./plugins/voiceLog')
 }
 plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot);
+plugins.rss = {
+    "src": require('./plugins/rss')
+}
+plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot);
 
 
 bot.on('message', function(message) {

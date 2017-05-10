@@ -8,6 +8,9 @@ Commands.prototype.processCommand = function(message, isUpdate) {
     if (message.author.id != this.bot.user.id && (message.content.startsWith(this.prefix))) {
         var commandText = message.content.split(" ")[0].substring(this.prefix.length);
 
+        // Force lowercase text
+        commandText = commandText.toLowerCase();
+
         // Check for "special" help command
         if (commandText == 'help') {
             var response = "```Markdown\n";

@@ -48,15 +48,15 @@ bot.on('ready', function() {
 plugins.wow = {
     "src": require('./plugins/wow')
 }
-plugins.wow.object = new plugins.wow.src(Config.plugins.wow, bot);
+plugins.wow.object = new plugins.wow.src(Config.plugins.wow, bot, commands, db);
 plugins.voiceLog = {
     "src": require('./plugins/voiceLog')
 }
-plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot);
+plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot, commands, db);
 plugins.rss = {
     "src": require('./plugins/rss')
 }
-plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot, db);
+plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot, commands, db);
 
 
 bot.on('message', function(message) {

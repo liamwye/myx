@@ -17,7 +17,7 @@ Commands.prototype.processCommand = function(message, isUpdate) {
             response += "commands\n========\n"
 
             for (var key in this.commands) {
-                response += '* ' + this.commands[key].usage + ' => ' + this.commands[key].description + "\n";
+                response += '* ' + this.prefix + this.commands[key].usage + ' => ' + this.commands[key].description + "\n";
             }
             response += '```';
 
@@ -26,9 +26,6 @@ Commands.prototype.processCommand = function(message, isUpdate) {
         } else {
             try {
                 this.commands[commandText].process.bind(this)(message)
-                    .then((sent) => {
-                        console.log(' .. COMMAND ' + this.prefix + commandText + ': replied to @' + message.author.username + ': ' + sent.content)
-                    });
             } catch(e) {
                 console.log(" .. ERROR: Bot command failed; " + this.prefix + commandText);
                 console.log(e);
@@ -39,9 +36,18 @@ Commands.prototype.processCommand = function(message, isUpdate) {
     return false;
 }
 
+Commands.prototype.addCommand = function(name, usage, description, processFunction) {
+    // Allow overwriting of commands?
+    this.commands[name] = {
+        "usage": usage,
+        "description": description,
+        "process": processFunction
+    };
+};
+
 Commands.prototype.commands = {
     "quote": {
-        "usage": "!quote",
+        "usage": "quote",
         "description": "random channel quote.",
         "process": function(message) {
             return message.channel.fetchPinnedMessages()
@@ -62,7 +68,7 @@ Commands.prototype.commands = {
         }
     },
     "sco": {
-        "usage": "!sco",
+        "usage": "sco",
         "description": "sexiest man on earth.",
         "process": function(message) {
             var images = [
@@ -77,7 +83,7 @@ Commands.prototype.commands = {
         }
     },
     "uptime": {
-        "usage": "!uptime",
+        "usage": "uptime",
         "description": "check the bot uptime.",
         "process": function(message) {
             var uptime = new Date(this.bot.uptime);

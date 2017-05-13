@@ -1,4 +1,4 @@
-const dateFormat = require('dateFormat');
+const dateFormat = require('dateformat');
 
 var VoiceLog = function(config, bot) {
     this.config = config;

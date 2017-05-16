@@ -30,7 +30,7 @@ WarcraftLogs.prototype.init = function() {
 
 this.check();
     // Check the RSS feed every x ms, defined by config.frequency
-    //setInterval(this.check.bind(this), this.config.frequency);
+    setInterval(this.check.bind(this), this.config.frequency);
 }
 
 WarcraftLogs.prototype.check = function(alternateChannel) {

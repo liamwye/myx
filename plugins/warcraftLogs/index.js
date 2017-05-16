@@ -27,7 +27,7 @@ WarcraftLogs.prototype.init = function() {
         this.db.set('wcl', { id: false })
             .write();
     }
-    
+
     // Check the RSS feed every x ms, defined by config.frequency
     setInterval(this.check.bind(this), this.config.frequency);
 }
@@ -58,7 +58,7 @@ WarcraftLogs.prototype.check = function(alternateChannel) {
 
             var date = dateFormat(data.start, "dd/mm/yyyy");
             var url = self.config.url + data.id;
-            var message = `**${date}** ${data.title}: ${url}`;
+            var message = `**${date}**, "${data.title}" - ${url}`;
 
             // Check whether we were passed an alternate channel to publish to
             if (alternateChannel !== false) {

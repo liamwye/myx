@@ -23,13 +23,14 @@
     "discord.js": "^11.0.0",
     "erlpack": "github:hammerandchisel/erlpack#master",
     "express": "^4.15.2",
+    "libsodium-wrappers": "^0.5.1",
     "lowdb": "^0.16.2",
     "node-opus": "^0.2.0",
     "opusscript": "0.0.1",
     "rss-parser": "^2.7.0",
-    "uws": "*",
-    "ws": "^2.2.2",
     "sodium": "^2.0.1",
-    "libsodium-wrappers": "^0.5.1"
+    "uws": "*",
+    "weasel.js": "^1.0.0",
+    "ws": "^2.2.2"
   }
 }

@@ -57,6 +57,10 @@ plugins.rss = {
     "src": require('./plugins/rss')
 }
 plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot, commands, db);
+plugins.warcraftLogs = {
+    "src": require('./plugins/warcraftLogs')
+}
+plugins.warcraftLogs.object = new plugins.warcraftLogs.src(Config.plugins.warcraftLogs, bot, commands, db);
 
 
 bot.on('message', function(message) {

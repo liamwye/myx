@@ -28,13 +28,19 @@ WarcraftLogs.prototype.init = function() {
             .write();
     }
 
+    // Define a manual command to fetch logs
+    var self = this;
+    this.commands.addCommand(this.config.command, this.config.command, "Fetch new logs from Warcraft Logs.", function(message) {
+        self.check(message.channel);
+    });
+
     // Check the RSS feed every x ms, defined by config.frequency
     setInterval(this.check.bind(this), this.config.frequency);
 }
 
-WarcraftLogs.prototype.check = function(alternateChannel) {
+WarcraftLogs.prototype.check = function(channel) {
     // Check to see if we need to post to an different channel
-    alternateChannel = typeof alternateChannel !== 'undefined' ? alternateChannel : false;
+    channel = typeof channel !== 'undefined' ? channel : false;
     var self = this;
 
     // Fetch the ID for the last value that was published
@@ -50,7 +56,7 @@ WarcraftLogs.prototype.check = function(alternateChannel) {
         data = data.pop();
 
         // Check that we haven't published this log
-        if (data.id !== lastPublished || alternateChannel !== false) {
+        if (data.id !== lastPublished) {
             // Update the log id field
             self.db.get('wcl')
                 .assign({ id: data.id })
@@ -58,14 +64,16 @@ WarcraftLogs.prototype.check = function(alternateChannel) {
 
             var date = dateFormat(data.start, "dd/mm/yyyy");
             var url = self.config.url + data.id;
-            var message = `**${date}**, "${data.title}" - ${url}`;
+            var message = `**${date}**, ${data.title}, ${url}`;
 
             // Check whether we were passed an alternate channel to publish to
-            if (alternateChannel !== false) {
-                alternateChannel.send(message);
+            if (channel !== false) {
+                channel.send(message);
             } else {
                 self.channel.send(message);
             }
+        } else if (channel !== false) {
+            channel.send('No new logs to publish.');
         }
     });
 };

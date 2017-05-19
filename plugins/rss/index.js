@@ -48,7 +48,7 @@ Rss.prototype.initDb = function () {
 
 Rss.prototype.addCommand = function (feed) {
     var self = this;
-    this.commands.addCommand(feed, `${feed} mmo/wowhead`, "View the last item fetched from the RSS feed.", function(message) {
+    this.commands.addCommand(feed, feed, "View the last item fetched from the RSS feed.", function(message) {
         self.check(feed, message.channel);
     });
 };

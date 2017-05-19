@@ -71,7 +71,7 @@ Rss.prototype.check = function(feedId, channel) {
             if (messages.length > 0) {
                 // Loop through the entries and send them (to a maximum of x entries)
                 for (var j = 0; j < self.config.limit; j++) {
-                    //self.send(messages[j], channel);
+                    self.send(messages[j], channel);
                 }
 
                 // Update the last published date

@@ -62,9 +62,9 @@ WarcraftLogs.prototype.check = function(alternateChannel) {
 
             // Check whether we were passed an alternate channel to publish to
             if (alternateChannel !== false) {
-                alternateChannel.sendMessage(message);
+                alternateChannel.send(message);
             } else {
-                self.channel.sendMessage(message);
+                self.channel.send(message);
             }
         }
     });

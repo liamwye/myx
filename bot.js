@@ -96,7 +96,7 @@ function sendChannelMessage(message, channel) {
     channel = bot.channels.find('name', channel);
 
     try {
-        channel.sendMessage(message);
+        channel.send(message);
     } catch(e) {
         log(e);
     }

@@ -32,7 +32,7 @@ VoiceLog.prototype.init = function() {
 
             // Send message to channel
             try {
-                self.channel.sendMessage(message);
+                self.channel.send(message);
             } catch(e) {
                 console.log(e);
             }

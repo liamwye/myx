@@ -4,7 +4,7 @@ var Commands = function(prefix, bot) {
 };
 
 Commands.prototype.processCommand = function(message, isUpdate) {
-    // Check the sender and for a command prefix
+    // Check the sender for a command prefix
     if (message.author.id != this.bot.user.id && (message.content.startsWith(this.prefix))) {
         var commandText = message.content.split(" ")[0].substring(this.prefix.length);
 

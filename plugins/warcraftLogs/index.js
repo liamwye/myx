@@ -30,7 +30,7 @@ WarcraftLogs.prototype.init = function() {
 
     // Define a manual command to fetch logs
     var self = this;
-    this.commands.addCommand(this.config.command, this.config.command, "Fetch new logs from Warcraft Logs.", function(message) {
+    this.commands.addCommand(this.config.command, this.config.command, "fetch new logs from Warcraft Logs.", function(message) {
         self.check(message.channel);
     });
 

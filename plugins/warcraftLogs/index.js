@@ -55,6 +55,7 @@ WarcraftLogs.prototype.check = function(channel) {
         // Get the last log that was published
         data = data.pop();
 
+        // TODO: Change this to use a date check rather than an id check
         // Check that we haven't published this log
         if (data.id !== lastPublished) {
             // Update the log id field

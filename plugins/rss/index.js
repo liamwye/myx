@@ -24,27 +24,9 @@ Rss.prototype.init = function() {
         this.addCommand(this.config.feeds[i].id);
     }
 
-    // Initialise the db
-    this.initDb();
-
     // Check the RSS feed every x ms, defined by config.frequency
     setInterval(this.check.bind(this), this.config.frequency);
 }
-
-Rss.prototype.initDb = function () {
-    // Define a default date, 5 days ago to show content from
-    var dateOffset = (24*60*60*1000) * 5; //5 days
-    var date = new Date();
-    date.setTime(date.getTime() - dateOffset);
-
-    // Ensure the db has an RSS field to store the last published date
-    for (var i = 0; i < this.config.feeds.length; i++) {
-        if (this.db.has(`rss.${this.config.feeds[i].id}`).value() == false) {
-            this.db.set(`rss.${this.config.feeds[i].id}`, { pubDate: date })
-                .write();
-        }
-    }
-};
 
 Rss.prototype.addCommand = function (feed) {
     var self = this;
@@ -55,7 +37,7 @@ Rss.prototype.addCommand = function (feed) {
 
 Rss.prototype.check = function(feedId, channel) {
     var self = this;
-    var lastPublished = false
+    var lastPublished = 0
     var messages = [];
 
     // Check whether we've been passed a seperate channel to send to
@@ -67,20 +49,19 @@ Rss.prototype.check = function(feedId, channel) {
     // Fetch any entries that have yet to be published
     for (var i = 0; i < self.config.feeds.length; i++) {
         var feed = self.config.feeds[i];
-
         if (feedId !== false && feedId !== feed.id) {
             continue;
         }
 
-        // Fetch the pubDate of the last published entry for this feed
-        lastPublished = self.getLastPublishedDate(feed.id);
-
         rssParser.parseURL(feed.url, function(err, parsed) {
+            // Fetch the pubDate of the last published entry for this feed
+            lastPublished = self.getLastPublishedDate(parsed.feed.title);
+
             parsed.feed.entries.forEach(function(entry) {
                 // Check whether this entry has been published OR override if we have a specified channel to publish to
                 // .. A specified channel implies we've been asked for the last x entries to show immediately
                 var entryDate = new Date(entry.pubDate);
-                if (entryDate < lastPublished || channel !== false) {
+                if ((entryDate - lastPublished) > 0 || channel !== false) {
                     var date = dateFormat(entryDate, 'dddd, mmmm dS, yyyy, HH:MM:ss');
                     messages.push(`**${parsed.feed.title}** (${date})\n${entry.title}\n${entry.link}`)
                 }
@@ -89,14 +70,14 @@ Rss.prototype.check = function(feedId, channel) {
             // Check whether we have messages to send
             if (messages.length > 0) {
                 // Loop through the entries and send them (to a maximum of x entries)
-                for (var i = 0; i < self.config.limit; i++) {
-                    self.send(messages[i], channel);
+                for (var j = 0; j < self.config.limit; j++) {
+                    //self.send(messages[j], channel);
                 }
 
                 // Update the last published date
                 // .. Only update this for a regular internval publishing
                 if (channel == false) {
-                    self.updateLastPublishedDate(feed.id);
+                    self.updateLastPublishedDate(parsed.feed.title);
                 }
             }
 
@@ -118,14 +99,18 @@ Rss.prototype.send = function (message, channel) {
 
 Rss.prototype.getLastPublishedDate = function (id) {
     var date = this.db.get(`rss.${id}.pubDate`).value();
+    date = typeof date !== 'undefined' ? date : 0;
 
     // Convert to date object for comparison
-    date = new Date(date);
-
-    return date;
+    return new Date(date);
 };
 
 Rss.prototype.updateLastPublishedDate = function (id) {
+    if (this.db.has(`rss.${id}`).value() == false) {
+        return this.db.set(`rss.${id}`, { pubDate: new Date() })
+            .write();
+    }
+
     return this.db.get(`rss.${id}`)
         .assign({ pubDate: new Date() })
         .write();

@@ -28,7 +28,7 @@ Commands.prototype.processCommand = function(message, isUpdate) {
                 this.commands[commandText].process.bind(this)(message)
             } catch(e) {
                 console.log(" .. ERROR: Bot command failed; " + this.prefix + commandText);
-                console.log(e);
+                //console.log(e);
             }
         }
     }

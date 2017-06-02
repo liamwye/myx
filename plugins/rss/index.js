@@ -53,37 +53,42 @@ Rss.prototype.check = function(feedId, channel) {
             continue;
         }
 
-        rssParser.parseURL(feed.url, function(err, parsed) {
-            // Fetch the pubDate of the last published entry for this feed
-            lastPublished = self.getLastPublishedDate(parsed.feed.title);
+        try {
+            rssParser.parseURL(feed.url, function(err, parsed) {
+                // Fetch the pubDate of the last published entry for this feed
+                lastPublished = self.getLastPublishedDate(parsed.feed.title);
 
-            parsed.feed.entries.forEach(function(entry) {
-                // Check whether this entry has been published OR override if we have a specified channel to publish to
-                // .. A specified channel implies we've been asked for the last x entries to show immediately
-                var entryDate = new Date(entry.pubDate);
-                if ((entryDate - lastPublished) > 0 || channel !== false) {
-                    var date = dateFormat(entryDate, 'dddd, mmmm dS, yyyy, HH:MM:ss');
-                    messages.push(`**${parsed.feed.title}** (${date})\n${entry.title}\n${entry.link}`)
+                parsed.feed.entries.forEach(function(entry) {
+                    // Check whether this entry has been published OR override if we have a specified channel to publish to
+                    // .. A specified channel implies we've been asked for the last x entries to show immediately
+                    var entryDate = new Date(entry.pubDate);
+                    if ((entryDate - lastPublished) > 0 || channel !== false) {
+                        var date = dateFormat(entryDate, 'dddd, mmmm dS, yyyy, HH:MM:ss');
+                        messages.push(`**${parsed.feed.title}** (${date})\n${entry.title}\n${entry.link}`)
+                    }
+                });
+
+                // Check whether we have messages to send
+                if (messages.length > 0) {
+                    // Loop through the entries and send them (to a maximum of x entries)
+                    for (var j = 0; j < self.config.limit; j++) {
+                        self.send(messages[j], channel);
+                    }
+
+                    // Update the last published date
+                    // .. Only update this for a regular internval publishing
+                    if (channel == false) {
+                        self.updateLastPublishedDate(parsed.feed.title);
+                    }
                 }
+
+                // Reset messages array
+                messages = [];
             });
-
-            // Check whether we have messages to send
-            if (messages.length > 0) {
-                // Loop through the entries and send them (to a maximum of x entries)
-                for (var j = 0; j < self.config.limit; j++) {
-                    self.send(messages[j], channel);
-                }
-
-                // Update the last published date
-                // .. Only update this for a regular internval publishing
-                if (channel == false) {
-                    self.updateLastPublishedDate(parsed.feed.title);
-                }
-            }
-
-            // Reset messages array
-            messages = [];
-        });
+        } catch (e) {
+            console.log('error parsing feed ' + feed.url);
+            console.log(e);
+        }
     }
 };
 

@@ -46,37 +46,47 @@ WarcraftLogs.prototype.check = function(channel) {
     // Fetch the ID for the last value that was published
     var lastPublished = self.db.get('wcl.id').value();
 
-    api.getReportsGuild(self.config.guild, self.config.realm, self.config.region, {}, function(err, data) {
-        if (err) {
-            console.log(err);
-            return;
-        }
-
-        // Get the last log that was published
-        data = data.pop();
-
-        // TODO: Change this to use a date check rather than an id check
-        // Check that we haven't published this log
-        if (data.id !== lastPublished) {
-            // Update the log id field
-            self.db.get('wcl')
-                .assign({ id: data.id })
-                .write();
-
-            var date = dateFormat(data.start, "dd/mm/yyyy");
-            var url = self.config.url + data.id;
-            var message = `**${date}**, ${data.title}, ${url}`;
-
-            // Check whether we were passed an alternate channel to publish to
-            if (channel !== false) {
-                channel.send(message);
-            } else {
-                self.channel.send(message);
+    try {
+        api.getReportsGuild(self.config.guild, self.config.realm, self.config.region, {}, function(err, data) {
+            if (err) {
+                console.log(err);
+                return;
             }
-        } else if (channel !== false) {
-            channel.send('No new logs to publish.');
+
+            // Get the last log that was published
+            data = data.pop();
+
+            // TODO: Change this to use a date check rather than an id check
+            // Check that we haven't published this log
+            if (data.id !== lastPublished) {
+                // Update the log id field
+                self.db.get('wcl')
+                    .assign({ id: data.id })
+                    .write();
+
+                var date = dateFormat(data.start, "dd/mm/yyyy");
+                var url = self.config.url + data.id;
+                var message = `**${date}**, ${data.title}, ${url}`;
+
+                // Check whether we were passed an alternate channel to publish to
+                // In this case, all we publish is a notice that we've found a log
+                if (channel !== false) {
+                    channel.send('New log published.');
+                }
+
+                self.channel.send(message);
+            } else if (channel !== false) {
+                channel.send('No new logs to publish.');
+            }
+        });
+    } catch (e) {
+        console.log(e);
+
+        if (channel !== false) {
+            channel.send('Something may, or may not, have gone wrong.');
         }
-    });
+    }
+
 };
 
 module.exports = WarcraftLogs;

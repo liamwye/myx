@@ -55,6 +55,13 @@ Rss.prototype.check = function(feedId, channel) {
 
         try {
             rssParser.parseURL(feed.url, function(err, parsed) {
+                if (err) {
+                    console.log(err);
+                    return;
+                } else if (parsed == "undefined") {
+                    console.log('parsed is undefined');
+                }
+
                 // Fetch the pubDate of the last published entry for this feed
                 lastPublished = self.getLastPublishedDate(parsed.feed.title);
 

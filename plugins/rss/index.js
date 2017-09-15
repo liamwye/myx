@@ -71,7 +71,7 @@ Rss.prototype.check = function(feedId, channel) {
                     var entryDate = new Date(entry.pubDate);
                     if ((entryDate - lastPublished) > 0 || channel !== false) {
                         var date = dateFormat(entryDate, 'dddd, mmmm dS, yyyy, HH:MM:ss');
-                        messages.push(`**${parsed.feed.title}** (${date})\n${entry.title}\n${entry.link}`)
+                        messages.push(`📌 **${parsed.feed.title}** (${date})\n${entry.title}\n${entry.link}`)
                     }
                 });
 

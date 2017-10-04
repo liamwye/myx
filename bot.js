@@ -54,8 +54,8 @@ plugins.voiceLog = {
 }
 plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot, commands, db);
 //plugins.rss = {
-    "src": require('./plugins/rss')
-}
+//    "src": require('./plugins/rss')
+//}
 //plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot, commands, db);
 plugins.warcraftLogs = {
     "src": require('./plugins/warcraftLogs')

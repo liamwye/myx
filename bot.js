@@ -60,7 +60,7 @@ plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot,
 plugins.warcraftLogs = {
     "src": require('./plugins/warcraftLogs')
 }
-plugins.warcraftLogs.object = new plugins.wa rcraftLogs.src(Config.plugins.warcraftLogs, bot, commands, db);
+plugins.warcraftLogs.object = new plugins.warcraftLogs.src(Config.plugins.warcraftLogs, bot, commands, db);
 
 
 bot.on('message', function(message) {

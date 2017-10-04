@@ -53,14 +53,14 @@ plugins.voiceLog = {
     "src": require('./plugins/voiceLog')
 }
 plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot, commands, db);
-plugins.rss = {
+//plugins.rss = {
     "src": require('./plugins/rss')
 }
-plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot, commands, db);
+//plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot, commands, db);
 plugins.warcraftLogs = {
     "src": require('./plugins/warcraftLogs')
 }
-plugins.warcraftLogs.object = new plugins.warcraftLogs.src(Config.plugins.warcraftLogs, bot, commands, db);
+plugins.warcraftLogs.object = new plugins.wa rcraftLogs.src(Config.plugins.warcraftLogs, bot, commands, db);
 
 
 bot.on('message', function(message) {

@@ -20,7 +20,13 @@ WarcraftLogs.prototype.init = function() {
     console.log(' + Initialising WarcraftLogs plugin...');
 
     // Define the wcl api key
-    api.setApiKey(this.config.key);
+    try {
+        api.setApiKey(this.config.key);
+    } catch (e) {
+        console.log('  - Failed to initialise WarcraftLogs plugin...');
+        console.log(e);
+        return;
+    }
 
     // Ensure the db has a wcl field to store the last published report
     if (this.db.has('wcl').value() == false) {
@@ -83,7 +89,7 @@ WarcraftLogs.prototype.check = function(channel) {
         console.log(e);
 
         if (channel !== false) {
-            channel.send('Something may, or may not, have gone wrong.');
+            channel.send('Something may, or may not, have gone wrong...');
         }
     }
 

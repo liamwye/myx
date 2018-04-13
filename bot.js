@@ -2,7 +2,8 @@ const Discord = require('discord.js');
 const path = require('path');
 const dateFormat = require('dateformat');
 const util = require('util');
-const low = require('lowdb')
+const low = require('lowdb');
+const fs = require('fs');
 
 log("Forking Myx\n * Node " + process.version + "\n * Discord.js v" + Discord.version);
 
@@ -56,15 +57,26 @@ bot.on('guildCreate', guild => {
     log(`Joined new server; ${guild.name} (id: ${guild.id}) with ${guild.memberCount} members`);
 
     const defaultGuildChannel = guild.channels.find('name', Config.defaultChannel);
-    defaultGuildChannel.send("Hey, I'm new here..! **!help** for more information on what I can do for you.");
+    defaultGuildChannel.send("Hey, I'm new here... Type **!help** for more information on what I can do for you!");
 });
 
-// React to a new usuer joining the server
+// React to a new user joining the server
 bot.on('guildMemberAdd', function(member) {
     const channel = member.guild.channels.find('name', Config.defaultChannel)
 
     try {
         channel.send(`Welcome to the server, ${member}!`);
+    } catch (e) {
+        log(e);
+    }
+});
+
+// React to a user leaving the server
+bot.on('guildMemberRemove', function(member) {
+    const channel = member.guild.channels.find('name', Config.defaultChannel)
+
+    try {
+        channel.send(`${member} has left the server!`);
     } catch (e) {
         log(e);
     }
@@ -78,6 +90,33 @@ bot.on('debug', function(info) {
     //log('  DEBUG: ' + info);
 });
 
+// Load plugins automagically from /plugins (by default)
+var  pluginBasePath = __dirname + Config.plugins.path;
+fs.readdir(pluginBasePath, function(err, files) {
+    files.forEach(function(file, index) {
+
+        var filePath = path.join(pluginBasePath, file);
+        fs.stat(filePath, function(err, stats) {
+            // Check whether we're handling a plugin directory
+            if (stats.isDirectory()) {
+                // Process plugin
+                loadPlugin(file, Config.plugins.path);
+            }
+        });
+    });
+});
+
+// Load the defined plugin
+function loadPlugin(plugin, dir) {
+    console.log(`Loading ${plugin}...`);
+
+    plugins[plugin] = {
+        "src": require(`./${dir}/${plugin}`)
+    }
+    plugins[plugin].object = new plugins[plugin].src(Config.plugins[plugin], bot, commands, db);
+}
+
+/**
 // Load plugins...
 // TODO: Do this dynamically... loop over each dir and load the requirements
 plugins.wow = {
@@ -96,6 +135,7 @@ plugins.warcraftLogs = {
     "src": require('./plugins/warcraftLogs')
 }
 plugins.warcraftLogs.object = new plugins.warcraftLogs.src(Config.plugins.warcraftLogs, bot, commands, db);
+*/
 
 // Check for token and login where appropriate
 if (Config.token) {

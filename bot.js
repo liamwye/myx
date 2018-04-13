@@ -55,8 +55,8 @@ bot.on('message', function(message) {
 bot.on('guildCreate', guild => {
     log(`Joined new server; ${guild.name} (id: ${guild.id}) with ${guild.memberCount} members`);
 
-    const channel = guild.channels.find('name', Config.defaultChannel);
-    channel.send("Hey, I'm new here..! **!help** for more information on what I can do for you.");
+    const defaultGuildChannel = guild.channels.find('name', Config.defaultChannel);
+    defaultGuildChannel.send("Hey, I'm new here..! **!help** for more information on what I can do for you.");
 });
 
 // React to a new usuer joining the server

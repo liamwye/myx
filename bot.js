@@ -37,8 +37,12 @@ bot.on('ready', function() {
     }
 
     if (Config.activity) {
-        bot.user.setActivity(Config.activity).then(() => {
-            log('Set game to "' + this.user.localPresence.game.name + '"');
+        if (!Config.activityType) {
+            Config.activityType = 0;
+        }
+        
+        bot.user.setActivity(Config.activity, { type: Config.activityType }).then(() => {
+            log('Set activity to "' + this.user.localPresence.game.name + '"');
         });
     }
 });

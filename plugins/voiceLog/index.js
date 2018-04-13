@@ -4,12 +4,6 @@ var VoiceLog = function(config, bot) {
     this.config = config;
     this.bot = bot;
 
-    // Cache the log channel
-    var self = this;
-    this.bot.on('ready', function() {
-        self.channel = self.bot.channels.find('name', self.config.channel);
-    });
-
     this.init();
 };
 
@@ -30,9 +24,12 @@ VoiceLog.prototype.init = function() {
                 message += `moved from **${oldMember.voiceChannel}** to **${newMember.voiceChannel}**`;
             }
 
+            // Get the channel to report to
+            const channel = newMember.guild.channels.find('name', self.config.channel);
+
             // Send message to channel
             try {
-                self.channel.send(message);
+                channel.send(message);
             } catch(e) {
                 console.log(e);
             }

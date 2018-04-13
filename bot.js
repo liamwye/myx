@@ -33,14 +33,37 @@ var plugins = {};
 
 bot.on('ready', function() {
     if (bot.user.username) {
-        log('Logged in as ' + bot.user.username);
+        log('Connected as ' + bot.user.username);
     }
 
-    if (Config.game) {
-        bot.user.setGame(Config.game).then(() => {
+    if (Config.activity) {
+        bot.user.setActivity(Config.activity).then(() => {
             log('Set game to "' + this.user.localPresence.game.name + '"');
         });
     }
+});
+
+bot.on('message', function(message) {
+    commands.processCommand(message, false);
+});
+
+// React to a new usuer joining the server
+bot.on('guildMemberAdd', function(member) {
+    const channel = member.guild.channels.find('name', Config.defaultChannel)
+
+    try {
+        channel.send(`Welcome to the server, ${member}!`);
+    } catch (e) {
+        log(e);
+    }
+});
+
+bot.on('disconnect', function() {
+    log(' .. Bot disconnected');
+});
+
+bot.on('debug', function(info) {
+    //log('  DEBUG: ' + info);
 });
 
 // Load plugins...
@@ -62,44 +85,12 @@ plugins.warcraftLogs = {
 }
 plugins.warcraftLogs.object = new plugins.warcraftLogs.src(Config.plugins.warcraftLogs, bot, commands, db);
 
-
-bot.on('message', function(message) {
-    commands.processCommand(message, false);
-});
-
-bot.on('messageUpdate', function(oldMessage, newMessage) {
-    commands.processCommand(newMessage, true);
-});
-
-bot.on('guildMemberAdd', function(member) {
-    sendChannelMessage(`Welcome to the server, ${member}!`, Config.defaultChannel);
-});
-
-bot.on('disconnect', function() {
-    log(' .. Bot disconnected');
-});
-
-bot.on('debug', function(info) {
-    //log('  DEBUG: ' + info);
-});
-
 // Check for token and login where appropriate
 if (Config.token) {
     bot.login(Config.token);
 } else {
     log(' .. ERROR: Unable to login, missing token');
     process.exit(1);
-}
-
-// Attempt to send a channel message
-function sendChannelMessage(message, channel) {
-    channel = bot.channels.find('name', channel);
-
-    try {
-        channel.send(message);
-    } catch(e) {
-        log(e);
-    }
 }
 
 function get24HourTime() {

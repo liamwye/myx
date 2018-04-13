@@ -47,6 +47,12 @@ bot.on('message', function(message) {
     commands.processCommand(message, false);
 });
 
+// React to adding a new guild/server
+bot.on('guildCreate' guild => {
+    log(`Joined new server; ${guild.name} (id: ${guild.id}) with ${guild.memberCount} members`);
+    guild.defaultChannel.send("Hey, I'm new here..! **!help** for more information on what I can do for you.");
+});
+
 // React to a new usuer joining the server
 bot.on('guildMemberAdd', function(member) {
     const channel = member.guild.channels.find('name', Config.defaultChannel)

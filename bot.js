@@ -40,7 +40,7 @@ bot.on('ready', function() {
         if (!Config.activityType) {
             Config.activityType = 0;
         }
-        
+
         bot.user.setActivity(Config.activity, { type: Config.activityType }).then(() => {
             log('Set activity to "' + this.user.localPresence.game.name + '"');
         });
@@ -52,7 +52,7 @@ bot.on('message', function(message) {
 });
 
 // React to adding a new guild/server
-bot.on('guildCreate' guild => {
+bot.on('guildCreate', guild => {
     log(`Joined new server; ${guild.name} (id: ${guild.id}) with ${guild.memberCount} members`);
     guild.defaultChannel.send("Hey, I'm new here..! **!help** for more information on what I can do for you.");
 });

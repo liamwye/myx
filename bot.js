@@ -97,7 +97,7 @@ fs.readdir(pluginBasePath, function(err, files) {
 
         var filePath = path.join(pluginBasePath, file);
         fs.stat(filePath, function(err, stats) {
-            // Check whether we're handling a plugin directory
+            // Check whether we're handling a plugin dir
             if (stats.isDirectory()) {
                 // Process plugin
                 loadPlugin(file, Config.plugins.path);
@@ -115,27 +115,6 @@ function loadPlugin(plugin, dir) {
     }
     plugins[plugin].object = new plugins[plugin].src(Config.plugins[plugin], bot, commands, db);
 }
-
-/**
-// Load plugins...
-// TODO: Do this dynamically... loop over each dir and load the requirements
-plugins.wow = {
-    "src": require('./plugins/wow')
-}
-plugins.wow.object = new plugins.wow.src(Config.plugins.wow, bot, commands, db);
-plugins.voiceLog = {
-    "src": require('./plugins/voiceLog')
-}
-plugins.voiceLog.object = new plugins.voiceLog.src(Config.plugins.voiceLog, bot, commands, db);
-//plugins.rss = {
-//    "src": require('./plugins/rss')
-//}
-//plugins.rss.object = new plugins.rss.src(Config.plugins.rss, bot, commands, db);
-plugins.warcraftLogs = {
-    "src": require('./plugins/warcraftLogs')
-}
-plugins.warcraftLogs.object = new plugins.warcraftLogs.src(Config.plugins.warcraftLogs, bot, commands, db);
-*/
 
 // Check for token and login where appropriate
 if (Config.token) {

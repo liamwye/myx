@@ -52,12 +52,29 @@ bot.on('message', function(message) {
     commands.processCommand(message, false);
 });
 
+// Check to see if any users go live on Twitch
+bot.on('updatePresence', function(oldMember, newMember) {
+    if (newMember.presence.game.streaming instanceof String) {
+        if (newMember.presence.game.streaming !== oldMember.presence.game.streaming) {
+            try {
+                newMember.guild.channels.find('name', Config.defaultChannel);
+            } catch (e) {
+                log(e);
+            }
+        }
+    }
+});
+
 // React to adding a new guild/server
 bot.on('guildCreate', guild => {
     log(`Joined new server; ${guild.name} (id: ${guild.id}) with ${guild.memberCount} members`);
 
-    const defaultGuildChannel = guild.channels.find('name', Config.defaultChannel);
-    defaultGuildChannel.send("Hey, I'm new here... Type **!help** for more information on what I can do for you!");
+    const channel = guild.channels.find('name', Config.defaultChannel);
+    try {
+        channel.send("Hey, I'm new here... Type **!help** for more information on what I can do for you!");
+    } catch (e) {
+        log(e);
+    }
 });
 
 // React to a new user joining the server
@@ -87,7 +104,7 @@ bot.on('disconnect', function() {
 });
 
 bot.on('debug', function(info) {
-    //log('  DEBUG: ' + info);
+    log('DEBUG: ' + info);
 });
 
 // Load plugins automagically from /plugins (by default)
@@ -99,22 +116,16 @@ fs.readdir(pluginBasePath, function(err, files) {
         fs.stat(filePath, function(err, stats) {
             // Check whether we're handling a plugin dir
             if (stats.isDirectory()) {
-                // Process plugin
-                loadPlugin(file, Config.plugins.path);
+                console.log(`Loading plugin - ${file}...`);
+
+                plugins[file] = {
+                    "src": require(`./${Config.plugins.path}/${file}`)
+                }
+                plugins[file].object = new plugins[file].src(Config.plugins[file], bot, commands, db);
             }
         });
     });
 });
-
-// Load the defined plugin
-function loadPlugin(plugin, dir) {
-    console.log(`Loading ${plugin}...`);
-
-    plugins[plugin] = {
-        "src": require(`./${dir}/${plugin}`)
-    }
-    plugins[plugin].object = new plugins[plugin].src(Config.plugins[plugin], bot, commands, db);
-}
 
 // Check for token and login where appropriate
 if (Config.token) {
@@ -124,16 +135,12 @@ if (Config.token) {
     process.exit(1);
 }
 
-function get24HourTime() {
-    return dateFormat('HH:MM:ss');
-}
-
 function log(message) {
     if (typeof message === 'object') {
         message = util.inspect(message, { showHidden: true, depth: null });
     } else {
         // Add timestamp
-        message = get24HourTime() + ': ' + message;
+        message = dateFormat('HH:MM:ss') + ': ' + message;
     }
 
     console.log(message);

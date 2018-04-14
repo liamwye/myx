@@ -56,11 +56,9 @@ bot.on('message', function(message) {
 bot.on('updatePresence', function(oldMember, newMember) {
     if (newMember.presence.game.streaming instanceof String) {
         if (newMember.presence.game.streaming !== oldMember.presence.game.streaming) {
+            const channel = newMember.guild.channels.find('name', Config.defaultChannel);
             try {
-                const channel = newMember.guild.channels.find('name', Config.defaultChannel);
-                try {
-                    channel.send(`${newMember.displayName} is now streaming on **Twitch**, ${newMember.presence.game.url}`);
-                }
+                channel.send(`${newMember.displayName} is now streaming on **Twitch**, ${newMember.presence.game.url}`);
             } catch (e) {
                 log(e);
             }
